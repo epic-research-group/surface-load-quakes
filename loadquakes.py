@@ -45,7 +45,7 @@ def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
     ax.plot([-80,80],[1, 1],'--r')
-    ax.text(-20, 1.5,'P=P(E)',color='r',fontsize=20)
+    ax.text(52, 1.2,'P=P(E)',color='r',fontsize=20)
     ax.set_xlabel('Surface Load (cm water equiv.)',fontsize = 17)
     ax.set_ylabel('Relative Probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
@@ -70,3 +70,20 @@ def calc_stats(a,b):
     result['median_all_minus_median_eq'] = np.median(b)-np.median(a)
     
     return result
+
+# function to plot maps of earthquake distribution
+
+def plot_map(eq, load_bounds, label1):
+
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    ax = world.plot(color='white', edgecolor='black', figsize=(15,10))
+
+    # first PC
+    gdf = gpd.GeoDataFrame(load_bounds,
+                       geometry=gpd.points_from_xy(load_bounds.longitude, load_bounds.latitude))
+    gdf.plot(ax=ax, label=label1)
+    
+    leg = ax.legend()
+    ax.set_xlabel('Longitude', fontsize = 15)
+    ax.set_ylabel("Latitude", fontsize = 15)
+    plt.show()
