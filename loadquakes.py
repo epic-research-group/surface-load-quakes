@@ -77,8 +77,8 @@ def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
     plt.style.use('fivethirtyeight')
     
     # Cumulative histogram
-
-    bins = np.linspace(-80,80,41)
+    bins = np.linspace(-80,80,int(1 + 3.322*np.log(rate_during_eq.size)))
+#     bins = np.linspace(-80,80,41)
     ax1.hist(rate_during_eq, bins, density = True, cumulative=True, histtype='step',
             label='Time periods with an earthquake',linewidth=1.5)
     ax1.hist(rate_at_all_times, bins, density = True, cumulative=True,histtype='step',
@@ -86,26 +86,26 @@ def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
     yl = ax1.get_ylim()
     ax1.set_ylim((-0.1,1.4*yl[1]))
     ax1.legend()
-    ax1.set_xlabel('Rate of surface loading (cm water equiv.)', fontsize = 17)
+    ax1.set_xlabel('Rate of surface loading', fontsize = 17)
     ax1.set_ylabel("Cumulative probability", fontsize = 17)
     ax1.set_title('A. Cumulative Distribution')
                  
     # Non-cumulative histogram
 
-    bins = np.linspace(-80,80,41)
+#     bins = np.linspace(-80,80,41)
     ax2.hist(rate_during_eq, bins, density = True, cumulative=False, histtype='step',
             label='Time periods with an earthquake',linewidth=1.5)
-    ax2.hist(rate_at_all_times, bins, density = True, cumulative=True,histtype='step',
+    ax2.hist(rate_at_all_times, bins, density = True, cumulative=False,histtype='step',
             label='All time periods',linewidth=1.5)
     yl = ax2.get_ylim()
-    ax2.set_ylim((-0.1,1.4*yl[1]))
+    ax2.set_ylim(-0.01,1.4*yl[1])
     ax2.legend()
-    ax2.set_xlabel('Rate of surface loading (cm water equiv.)', fontsize = 17)
+    ax2.set_xlabel('Rate of surface loading', fontsize = 17)
     ax2.set_ylabel("Probability", fontsize = 17)
     ax2.set_title('B. Probability Density')
 
 def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
-    
+
     fig,ax = plt.subplots(figsize=(7,7))
     plt.style.use('fivethirtyeight')
 
@@ -118,9 +118,8 @@ def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
 
     ax.plot([-80,80],[1, 1],'--k')
     ax.text(-40, 2,'P=P(E)',color='k',fontsize=20)
-    ax.set_xlabel('Rate of Surface Loading (cm water equiv.)',fontsize = 17)
+    ax.set_xlabel('Rate of Surface Loading',fontsize = 17)
     ax.set_ylabel('Relative Probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
-    #return fig,ax
 
    
