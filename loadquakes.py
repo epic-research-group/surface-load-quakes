@@ -5,6 +5,7 @@ import numpy as np
 from global_land_mask import globe
 import scipy.stats as stats
 import os
+import geopandas as gpd
 
 def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
     
@@ -37,6 +38,9 @@ def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
     
 def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     
+    fig,ax = plt.subplots(figsize=(7,7))
+    plt.style.use('fivethirtyeight')
+
     bins = np.linspace(-80,80,int(1 + 3.322*np.log(earthquake_only.size)))
     LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
     L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
@@ -45,11 +49,10 @@ def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
     ax.plot([-80,80],[1, 1],'--r')
-    ax.text(52, 1.2,'P=P(E)',color='r',fontsize=20)
+    ax.text(52, 1.1,'P=P(E)',color='r',fontsize=20)
     ax.set_xlabel('Surface Load (cm water equiv.)',fontsize = 17)
     ax.set_ylabel('Relative Probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
-    #return fig,ax
     
 def calc_stats(a,b):
     '''
@@ -117,9 +120,55 @@ def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
     ax.plot([-80,80],[1, 1],'--k')
-    ax.text(-40, 2,'P=P(E)',color='k',fontsize=20)
+    ax.text(-60, 1.1,'P=P(E)',color='k',fontsize=20)
     ax.set_xlabel('Rate of Surface Loading',fontsize = 17)
     ax.set_ylabel('Relative Probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
 
-   
+
+def plot_same_map(eq_load1, eq_load2, bounds1, bounds2, label1, label2):
+
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    ax = world.plot(color='white', edgecolor='black', figsize=(15,10))
+
+    # first PC
+    df_bigmass = bounds1
+    gdf = gpd.GeoDataFrame(df_bigmass,
+                       geometry=gpd.points_from_xy(df_bigmass.longitude, df_bigmass.latitude))
+    gdf.plot(ax=ax, label=label1)
+
+
+    # second pc
+    df_bigmass = bounds2
+    gdf = gpd.GeoDataFrame(df_bigmass,
+                       geometry=gpd.points_from_xy(df_bigmass.longitude, df_bigmass.latitude))
+    gdf.plot(ax=ax, label=label2)
+
+
+    leg = ax.legend()
+    ax.set_xlabel('Longitude', fontsize = 15)
+    ax.set_ylabel("Latitude", fontsize = 15)
+    plt.show()
+    
+def get_cond_probability(all_time_periods, earthquake_only, loads):
+    
+    bins = np.linspace(-80,80,int(1 + 3.322*np.log(earthquake_only.size)))
+    LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
+    L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
+    
+#     print(bins)
+#     print(bins - load)
+
+    cp = []
+
+    for load in loads:
+        
+        this_bin = bins[0]
+        i = 0
+    
+        while this_bin < load:
+            i = i + 1
+            this_bin = bins[i]
+        cp.append(LgE[i-1]/L[i-1])
+        
+    return np.array(cp)
