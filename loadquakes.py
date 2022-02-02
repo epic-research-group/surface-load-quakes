@@ -11,7 +11,7 @@ def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
     
     # Cumulative histogram
 
-    bins = np.linspace(-80,80,41)
+    bins = calculate_bin_sizes(earthquake_only)
     ax1.hist(earthquake_only, bins, density = True, cumulative=True, histtype='step',
             label='Time periods with an earthquake',linewidth=1.5)
     ax1.hist(all_time_periods, bins, density = True, cumulative=True,histtype='step',
@@ -41,7 +41,8 @@ def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     fig,ax = plt.subplots(figsize=(7,7))
     plt.style.use('fivethirtyeight')
 
-    bins = np.linspace(-80,80,int(1 + 3.322*np.log(earthquake_only.size)))
+    bins = calculate_bin_sizes(earthquake_only)
+    
     LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
     L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
 
@@ -80,8 +81,8 @@ def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
     plt.style.use('fivethirtyeight')
     
     # Cumulative histogram
-    bins = np.linspace(-80,80,int(1 + 3.322*np.log(rate_during_eq.size)))
-#     bins = np.linspace(-80,80,41)
+    bins = calculate_bin_sizes(rate_during_eq)
+    
     ax1.hist(rate_during_eq, bins, density = True, cumulative=True, histtype='step',
             label='Time periods with an earthquake',linewidth=1.5)
     ax1.hist(rate_at_all_times, bins, density = True, cumulative=True,histtype='step',
@@ -112,15 +113,18 @@ def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
     fig,ax = plt.subplots(figsize=(7,7))
     plt.style.use('fivethirtyeight')
 
-    bins = np.linspace(-80,80,int(1 + 3.322*np.log(earthquake_only.size)))
+    xmin=np.min(earthquake_only)
+    xmax=np.max(earthquake_only)
+    bins = calculate_bin_sizes(earthquake_only)
+    
     LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
     L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
 
     wid = np.mean(np.diff(bins))
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
-    ax.plot([-80,80],[1, 1],'--k')
-    ax.text(-60, 1.1,'P=P(E)',color='k',fontsize=20)
+    ax.plot([xmin,xmax],[1, 1],'--k')
+    ax.text(xmin+10, 1.1,'P=P(E)',color='k',fontsize=20)
     ax.set_xlabel('Rate of Surface Loading',fontsize = 17)
     ax.set_ylabel('Relative Probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
@@ -137,7 +141,6 @@ def plot_same_map(eq_load1, eq_load2, bounds1, bounds2, label1, label2):
                        geometry=gpd.points_from_xy(df_bigmass.longitude, df_bigmass.latitude))
     gdf.plot(ax=ax, label=label1)
 
-
     # second pc
     df_bigmass = bounds2
     gdf = gpd.GeoDataFrame(df_bigmass,
@@ -152,7 +155,7 @@ def plot_same_map(eq_load1, eq_load2, bounds1, bounds2, label1, label2):
     
 def get_cond_probability(all_time_periods, earthquake_only, loads):
     
-    bins = np.linspace(-80,80,int(1 + 3.322*np.log(earthquake_only.size)))
+    bins = calculate_bin_sizes(earthquake_only)
     LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
     L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
     
@@ -172,3 +175,11 @@ def get_cond_probability(all_time_periods, earthquake_only, loads):
         cp.append(LgE[i-1]/L[i-1])
         
     return np.array(cp)
+
+def calculate_bin_sizes(some_data,method="Sturge"):
+    xmin=np.min(some_data)
+    xmax=np.max(some_data)
+    if method=="Sturge":
+        bins = np.linspace(xmin, xmax,
+                       int(1 + 3.322*np.log(some_data.size)))
+    return bins
