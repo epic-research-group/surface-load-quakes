@@ -18,7 +18,7 @@ def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
             label='All time periods',linewidth=1.5)
     ax1.set_ylim((-0.1,1.3))
     ax1.legend()
-    ax1.set_xlabel('Surface load (cm water equiv.)', fontsize = 17)
+    ax1.set_xlabel('Surface load (cm-we)', fontsize = 17)
     ax1.set_ylabel("Cumulative probability", fontsize = 17)
     ax1.set_title(title1)
     
@@ -32,13 +32,12 @@ def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
     ax2.set_ylim((-0.01,1.4*yl[1]))
     ax2.set_xlim((-40,60))
     ax2.legend()
-    ax2.set_xlabel('Surface load (cm water equiv.)', fontsize = 17)
+    ax2.set_xlabel('Surface load (cm-we)', fontsize = 17)
     ax2.set_ylabel("Probability", fontsize = 17)
     ax2.set_title(title2)
     
 def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     
-    fig,ax = plt.subplots(figsize=(7,7))
     plt.style.use('fivethirtyeight')
 
     bins = calculate_bin_sizes(earthquake_only)
@@ -50,11 +49,11 @@ def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
     ax.plot([-80,80],[1, 1],'--r')
-    ax.text(52, 1.1,'P=P(E)',color='r',fontsize=20)
-    ax.set_xlabel('Surface Load (cm water equiv.)',fontsize = 17)
-    ax.set_ylabel('Relative Probability',fontsize = 17)
+    ax.text(48,1.2,'P(E|L)=P(E)',color='r',fontsize=20)
+    ax.set_xlabel('Surface load (cm-we.)',fontsize = 17)
+    ax.set_ylabel('Relative conditional probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
-    
+
 def calc_stats(a,b):
     '''
     Calculate stats for the distributions a and b
@@ -75,9 +74,9 @@ def calc_stats(a,b):
     
     return result
 
-def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
+def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2,title1, title2):
     
-    fig,(ax1, ax2) = plt.subplots(1, 2, figsize=(15,5))
+#     fig,(ax1, ax2) = plt.subplots(1, 2, figsize=(15,5))
     plt.style.use('fivethirtyeight')
     
     # Cumulative histogram
@@ -90,7 +89,7 @@ def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
     yl = ax1.get_ylim()
     ax1.set_ylim((-0.1,1.4*yl[1]))
     ax1.legend()
-    ax1.set_xlabel('Rate of surface loading', fontsize = 17)
+    ax1.set_xlabel('Rate of surface loading (cm-we/month)', fontsize = 17)
     ax1.set_ylabel("Cumulative probability", fontsize = 17)
     ax1.set_title('A. Cumulative Distribution')
                  
@@ -104,13 +103,13 @@ def plot_hist_rate(rate_at_all_times, rate_during_eq, ax1, ax2):
     yl = ax2.get_ylim()
     ax2.set_ylim(-0.01,1.4*yl[1])
     ax2.legend()
-    ax2.set_xlabel('Rate of surface loading', fontsize = 17)
+    ax2.set_xlabel('Rate of surface loading (cm-we/month)', fontsize = 17)
     ax2.set_ylabel("Probability", fontsize = 17)
     ax2.set_title('B. Probability Density')
 
 def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
 
-    fig,ax = plt.subplots(figsize=(7,7))
+#     fig,ax = plt.subplots(figsize=(7,7))
     plt.style.use('fivethirtyeight')
 
     xmin=np.min(earthquake_only)
@@ -123,10 +122,10 @@ def plot_rel_hist_rate(all_time_periods, earthquake_only, ax, title):
     wid = np.mean(np.diff(bins))
     ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
 
-    ax.plot([xmin,xmax],[1, 1],'--k')
-    ax.text(xmin+10, 1.1,'P=P(E)',color='k',fontsize=20)
-    ax.set_xlabel('Rate of Surface Loading',fontsize = 17)
-    ax.set_ylabel('Relative Probability',fontsize = 17)
+    ax.plot([xmin,xmax],[1, 1],'--r')
+    ax.text(-10, 1.5,'P(E|L)=P(E)',color='r',fontsize=20)
+    ax.set_xlabel('Rate of surface loading (cm-we/month)',fontsize = 17)
+    ax.set_ylabel('Relative conditional probability',fontsize = 17)
     ax.set_title(title, fontsize = 17)
 
 
