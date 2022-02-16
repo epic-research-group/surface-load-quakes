@@ -36,17 +36,17 @@ def plot_hist(all_time_periods, earthquake_only, ax1, ax2, title1, title2):
     ax2.set_ylabel("Probability", fontsize = 17)
     ax2.set_title(title2)
     
-def plot_rel_hist(all_time_periods, earthquake_only, ax, title):
+def plot_bayes(all_time_periods, earthquake_only, ax, title):
     
     plt.style.use('fivethirtyeight')
 
-    bins = calculate_bin_sizes(earthquake_only)
-    
-    LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
-    L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
+    cp,bins = calculate_bayes(earthquake_only,all_time_periods)
 
     wid = np.mean(np.diff(bins))
-    ax.bar(bins[:-1]+wid/2,LgE/L,width=wid)
+    print(len(bins))
+    print(len(cp))
+          
+    ax.bar(bins[:-1],cp,width=wid,align='edge')
 
     ax.plot([-80,80],[1, 1],'--r')
     ax.text(48,1.2,'P(E|L)=P(E)',color='r',fontsize=20)
@@ -154,31 +154,47 @@ def plot_same_map(eq_load1, eq_load2, bounds1, bounds2, label1, label2):
     
 def get_cond_probability(all_time_periods, earthquake_only, loads):
     
-    bins = calculate_bin_sizes(earthquake_only)
-    LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
-    L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
-    
+    cp,bins = calculate_bayes(earthquake_only,all_time_periods)
+#     print(cp)
 #     print(bins)
-#     print(bins - load)
 
-    cp = []
 
+    cp_for_each_event = []
+    
     for load in loads:
         
         this_bin = bins[0]
         i = 0
-    
+    # Remember that the values in 'bins' are the left edges of the histogram bars
         while this_bin < load:
-            i = i + 1
-            this_bin = bins[i]
-        cp.append(LgE[i-1]/L[i-1])
+#             print('%f <= %f'%(this_bin,load))
+            if i == len(cp):
+                break
+            else:
+                i = i + 1
+                this_bin = bins[i]
+#         print('Load %f belongs in the bin bounded on the left by the value %f'%(load,bins[i-1]))
+        cp_for_each_event.append(cp[i-1])
         
-    return np.array(cp)
+    return np.array(cp_for_each_event)
 
 def calculate_bin_sizes(some_data,method="Sturge"):
     xmin=np.min(some_data)
     xmax=np.max(some_data)
+    rng = xmax-xmin
+    xmin = xmin - rng/1e3
+    xmax = xmax + rng/1e3
     if method=="Sturge":
         bins = np.linspace(xmin, xmax,
                        int(1 + 3.322*np.log(some_data.size)))
     return bins
+
+def calculate_bayes(earthquake_only,all_time_periods):
+
+    bins = calculate_bin_sizes(earthquake_only)
+
+    LgE = np.histogram(earthquake_only, bins=bins, density = True)[0]
+    L   = np.histogram(all_time_periods,bins=bins, density = True)[0]
+    cp = LgE/L
+
+    return cp, bins
